@@ -1,34 +1,40 @@
 """
 Scoring Engine — Per-level and aggregate scoring logic.
 """
+from typing import Dict, Any
 
 
 class ScoringEngine:
-    """Calculates scores for each level and aggregates totals."""
+    """Calculates scores for each level and aggregates totals with consistent logic."""
 
-    MAX_SCORE_PER_LEVEL = 100
-    MAX_LEVELS = 8
-    TIME_BONUS_THRESHOLD = 60  # seconds — under this gets a bonus
-    HINT_PENALTY = 10
+    MAX_SCORE_PER_LEVEL: int = 100
+    MAX_LEVELS: int = 8
+    TIME_BONUS_THRESHOLD: int = 60  # seconds — under this gets a bonus
+    HINT_PENALTY: int = 10
 
     # Star thresholds (percentage of max)
-    STAR_THRESHOLDS = {1: 0.50, 2: 0.75, 3: 0.90}
+    STAR_THRESHOLDS: Dict[int, float] = {1: 0.50, 2: 0.75, 3: 0.90}
 
     @staticmethod
-    def calculate_level_score(accuracy_pct, time_seconds, hints_used=0, max_time=120):
+    def calculate_level_score(accuracy_pct: float,
+                               time_seconds: int,
+                               *,
+                               hints_used: int = 0,
+                               max_time: int = 120) -> Dict[str, Any]:
         """
         Calculate score for a single level.
 
         Args:
-            accuracy_pct: Float 0.0-1.0 representing answer accuracy
-            time_seconds: Time taken in seconds
-            hints_used: Number of hints used
-            max_time: Maximum allowed time for the level
+            accuracy_pct: Float 0.0-1.0 representing answer accuracy.
+            time_seconds: Time taken in seconds.
+            hints_used: Number of hints used.
+            max_time: Maximum allowed time for the level.
 
         Returns:
-            dict with score, time_bonus, hint_penalty, stars, breakdown
+            A dictionary with 'score', 'time_bonus', 'hint_penalty', 'stars', and 'breakdown'.
         """
-        base = int(accuracy_pct * 70)  # 70% of score from accuracy
+        # Base score is 70% of max
+        base = int(accuracy_pct * 70)
 
         # Time bonus: up to 20 points for being fast
         if time_seconds <= 0:
@@ -42,7 +48,7 @@ class ScoringEngine:
         # Completion bonus: 10 points for finishing
         completion_bonus = 10 if accuracy_pct > 0 else 0
 
-        # Hint penalty
+        # Hint penalty: capped at 30 points
         hint_penalty = min(hints_used * ScoringEngine.HINT_PENALTY, 30)
 
         raw = base + time_bonus + completion_bonus - hint_penalty
@@ -61,27 +67,35 @@ class ScoringEngine:
         }
 
     @staticmethod
-    def calculate_stars(score):
-        """Calculate star rating from score."""
+    def calculate_stars(score: int) -> int:
+        """
+        Calculate star rating from score.
+
+        Args:
+            score: The final score achieved.
+
+        Returns:
+            Number of stars (0-3).
+        """
         pct = score / ScoringEngine.MAX_SCORE_PER_LEVEL
         if pct >= ScoringEngine.STAR_THRESHOLDS[3]:
             return 3
-        elif pct >= ScoringEngine.STAR_THRESHOLDS[2]:
+        if pct >= ScoringEngine.STAR_THRESHOLDS[2]:
             return 2
-        elif pct >= ScoringEngine.STAR_THRESHOLDS[1]:
+        if pct >= ScoringEngine.STAR_THRESHOLDS[1]:
             return 1
         return 0
 
     @staticmethod
-    def calculate_aggregate(level_scores):
+    def calculate_aggregate(level_scores: Dict[int, Dict[str, Any]]) -> Dict[str, Any]:
         """
         Calculate aggregate score across all completed levels.
 
         Args:
-            level_scores: dict mapping level_id to score dict
+            level_scores: A dictionary mapping level_id to score dict.
 
         Returns:
-            dict with total_score, levels_completed, average, star_total, percentile_estimate
+            A dictionary with 'total_score', 'levels_completed', 'average', and 'star_total'.
         """
         if not level_scores:
             return {

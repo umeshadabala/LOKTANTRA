@@ -1,18 +1,33 @@
-"""Leaderboard Routes — Global Civic Leaderboard with name, age, email."""
-from flask import Blueprint, render_template, jsonify, request, current_app
+"""Leaderboard Routes — Global Civic Leaderboard endpoints."""
+from typing import Any, Dict, Tuple, Union, Optional
+from flask import Blueprint, render_template, jsonify, request, current_app, Response
 
 leaderboard_bp = Blueprint('leaderboard', __name__)
 
 
 @leaderboard_bp.route('/')
-def leaderboard_page():
-    """Render leaderboard page."""
+def leaderboard_page() -> str:
+    """
+    Render the global leaderboard page.
+
+    Returns:
+        Rendered HTML template for the leaderboard.
+    """
     return render_template('leaderboard.html')
 
 
 @leaderboard_bp.route('/data')
-def get_leaderboard():
-    """Get leaderboard data as JSON."""
+def get_leaderboard() -> Response:
+    """
+    Get sorted leaderboard data as JSON.
+
+    Query Parameters:
+        limit (int): Max number of entries (default 50)
+        saga (str): Filter by 'voter' or 'officer' scores
+
+    Returns:
+        JSON response with the top scores.
+    """
     limit = request.args.get('limit', 50, type=int)
     saga = request.args.get('saga', None)
     scores = current_app.firestore.get_top_scores(limit=limit, saga_filter=saga)
@@ -20,9 +35,24 @@ def get_leaderboard():
 
 
 @leaderboard_bp.route('/submit', methods=['POST'])
-def submit_score():
-    """Submit a score to the leaderboard with player details."""
-    data = request.get_json()
+def submit_score() -> Union[Response, Tuple[Response, int]]:
+    """
+    Submit a score to the leaderboard with player demographic details.
+
+    Expected JSON body:
+        player_name (str): Player's display name
+        email (str): Unique identifier
+        age (int): 18+ for citizenship verification
+        total_score (int): Aggregated score
+        voter_score (int): Score from voter saga
+        officer_score (int): Score from officer saga
+        levels_completed (int): Count of levels finished
+        saga_type (str): 'voter', 'officer', or 'both'
+
+    Returns:
+        JSON response indicating success.
+    """
+    data: Optional[Dict[str, Any]] = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
 

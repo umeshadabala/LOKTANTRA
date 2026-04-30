@@ -139,8 +139,33 @@ class TestLevel8Validator:
 
 
 class TestInvalidLevel:
-    """Test invalid level handling."""
+    """Test invalid level handling and edge cases."""
 
     def test_invalid_level_id(self):
         result = LevelValidator.validate(99, {}, {})
         assert result['accuracy'] == 0.0
+        assert result['details'] == 'Invalid level ID'
+
+    def test_invalid_submission_type(self):
+        # Submission must be a dict
+        result = LevelValidator.validate(1, "not a dict", {})  # type: ignore
+        assert result['accuracy'] == 0.0
+        assert result['details'] == 'Invalid data format'
+
+    def test_invalid_data_type(self):
+        # Level data must be a dict
+        result = LevelValidator.validate(1, {}, "not a dict")  # type: ignore
+        assert result['accuracy'] == 0.0
+        assert result['details'] == 'Invalid data format'
+
+    def test_missing_keys_maze(self):
+        data = get_level_data(1)
+        # Missing 'legitimate' and 'ghosts' keys
+        result = LevelValidator.validate(1, {}, data)
+        assert result['correct'] == 0
+        assert result['total'] == 7
+
+    def test_null_submission(self):
+        result = LevelValidator.validate(1, None, {})  # type: ignore
+        assert result['accuracy'] == 0.0
+        assert result['details'] == 'Invalid data format'

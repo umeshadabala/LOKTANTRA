@@ -3,11 +3,20 @@ LOKTANTRA: The Sovereign Saga
 Flask Application Factory
 """
 import os
+from typing import Any, Dict, Optional
 from flask import Flask
 
 
-def create_app(config_name=None):
-    """Create and configure the Flask application."""
+def create_app(config_name: Optional[str] = None) -> Flask:
+    """
+    Create and configure the Flask application factory.
+
+    Args:
+        config_name: The name of the configuration to use (development, production, testing).
+
+    Returns:
+        The configured Flask application instance.
+    """
     app = Flask(__name__,
                 template_folder='templates',
                 static_folder='static')
@@ -28,7 +37,7 @@ def create_app(config_name=None):
 
     # Template context processors
     @app.context_processor
-    def inject_globals():
+    def inject_globals() -> Dict[str, str]:
         return {
             'app_name': 'LOKTANTRA',
             'app_subtitle': 'The Sovereign Saga',
@@ -37,8 +46,13 @@ def create_app(config_name=None):
     return app
 
 
-def _init_services(app):
-    """Initialize Google Cloud services with graceful fallbacks."""
+def _init_services(app: Flask) -> None:
+    """
+    Initialize Google Cloud services with graceful fallbacks.
+
+    Args:
+        app: The Flask application instance.
+    """
     from app.services.firestore_service import FirestoreService
     from app.services.vertex_ai_service import VertexAIService
     from app.services.logging_service import LoggingService
@@ -48,8 +62,13 @@ def _init_services(app):
     app.cloud_logger = LoggingService(app)
 
 
-def _register_blueprints(app):
-    """Register all route blueprints."""
+def _register_blueprints(app: Flask) -> None:
+    """
+    Register all route blueprints.
+
+    Args:
+        app: The Flask application instance.
+    """
     from app.routes.main_routes import main_bp
     from app.routes.game_routes import game_bp
     from app.routes.leaderboard_routes import leaderboard_bp
@@ -61,19 +80,24 @@ def _register_blueprints(app):
     app.register_blueprint(api_bp, url_prefix='/api')
 
 
-def _register_error_handlers(app):
-    """Register custom error handlers."""
+def _register_error_handlers(app: Flask) -> None:
+    """
+    Register custom error handlers.
+
+    Args:
+        app: The Flask application instance.
+    """
     from flask import render_template, jsonify, request
 
     @app.errorhandler(404)
-    def not_found(error):
+    def not_found(error: Any) -> Any:
         if request.path.startswith('/api/'):
             return jsonify({'error': 'Resource not found'}), 404
         return render_template('base.html', error_code=404,
                                error_message='Page not found'), 404
 
     @app.errorhandler(500)
-    def internal_error(error):
+    def internal_error(error: Any) -> Any:
         if request.path.startswith('/api/'):
             return jsonify({'error': 'Internal server error'}), 500
         return render_template('base.html', error_code=500,

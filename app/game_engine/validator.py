@@ -2,23 +2,24 @@
 Level Validator — Answer validation logic for all 8 levels.
 """
 import math
+from typing import Dict, Any
 
 
 class LevelValidator:
-    """Validates player answers for each level type."""
+    """Validates player answers for each level type with precision and strictness."""
 
     @staticmethod
-    def validate(level_id, submission, level_data):
+    def validate(level_id: int, submission: Dict[str, Any], level_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validate a level submission.
+        Validate a level submission against reference data.
 
         Args:
-            level_id: Level number (1-8)
-            submission: Player's submitted answers (dict)
-            level_data: The level's reference data
+            level_id: Level number (1-8).
+            submission: Player's submitted answers (dict).
+            level_data: The level's reference data.
 
         Returns:
-            dict with 'correct', 'total', 'accuracy', 'details'
+            A dictionary with 'correct', 'total', 'accuracy', and 'details'.
         """
         validators = {
             1: LevelValidator._validate_maze,
@@ -32,11 +33,16 @@ class LevelValidator:
         }
         validator = validators.get(level_id)
         if not validator:
-            return {'correct': 0, 'total': 1, 'accuracy': 0.0, 'details': 'Invalid level'}
+            return {'correct': 0, 'total': 1, 'accuracy': 0.0, 'details': 'Invalid level ID'}
+
+        # Ensure submission and level_data are valid dictionaries
+        if not isinstance(submission, dict) or not isinstance(level_data, dict):
+            return {'correct': 0, 'total': 1, 'accuracy': 0.0, 'details': 'Invalid data format'}
+
         return validator(submission, level_data)
 
     @staticmethod
-    def _validate_maze(submission, data):
+    def _validate_maze(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """L1: Validate voter identification — legitimate vs ghost."""
         identified_legit = set(submission.get('legitimate', []))
         identified_ghosts = set(submission.get('ghosts', []))
@@ -64,7 +70,7 @@ class LevelValidator:
         }
 
     @staticmethod
-    def _validate_classifier(submission, data):
+    def _validate_classifier(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """L2: Validate deepfake vs real classification."""
         answers = submission.get('classifications', {})
         news_items = {item['id']: item['is_real'] for item in data.get('news_items', [])}
@@ -77,6 +83,7 @@ class LevelValidator:
             if is_correct:
                 correct += 1
             details.append({'id': nid, 'correct': is_correct})
+
         return {
             'correct': correct, 'total': total,
             'accuracy': correct / total if total > 0 else 0.0,
@@ -84,7 +91,7 @@ class LevelValidator:
         }
 
     @staticmethod
-    def _validate_sequence(submission, data):
+    def _validate_sequence(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """L3: Validate EVM voting sequence."""
         player_seq = submission.get('sequence', [])
         correct_seq = data.get('correct_sequence', [])
@@ -95,6 +102,7 @@ class LevelValidator:
                 correct += 1
             else:
                 break  # Sequence must be in order
+
         return {
             'correct': correct, 'total': total,
             'accuracy': correct / total if total > 0 else 0.0,
@@ -102,13 +110,14 @@ class LevelValidator:
         }
 
     @staticmethod
-    def _validate_precision(submission, data):
+    def _validate_precision(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """L4: Validate ink application."""
         finger = submission.get('finger', '')
         position = submission.get('position', '')
         correct_finger = finger == data.get('correct_finger', '')
         correct_position = position == data.get('correct_position', '')
         correct = (1 if correct_finger else 0) + (1 if correct_position else 0)
+
         return {
             'correct': correct, 'total': 2,
             'accuracy': correct / 2,
@@ -116,7 +125,7 @@ class LevelValidator:
         }
 
     @staticmethod
-    def _validate_document_review(submission, data):
+    def _validate_document_review(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """L5: Validate candidate affidavit decisions."""
         decisions = submission.get('decisions', {})
         candidates = data.get('candidates', [])
@@ -129,6 +138,7 @@ class LevelValidator:
             if is_correct:
                 correct += 1
             details.append({'id': c['id'], 'correct': is_correct, 'expected': c['verdict']})
+
         return {
             'correct': correct, 'total': total,
             'accuracy': correct / total if total > 0 else 0.0,
@@ -136,7 +146,7 @@ class LevelValidator:
         }
 
     @staticmethod
-    def _validate_placement(submission, data):
+    def _validate_placement(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """L6: Validate booth placement — all villages within 2km."""
         booths = submission.get('booths', [])
         villages = data.get('villages', [])
@@ -153,6 +163,7 @@ class LevelValidator:
         for v in villages:
             is_covered = False
             for b in booths:
+                # Use Euclidean distance for simplicity in this grid-based simulation
                 dist = math.sqrt((v['x'] - b['x'])**2 + (v['y'] - b['y'])**2) * cell_km
                 if dist <= radius:
                     is_covered = True
@@ -170,7 +181,7 @@ class LevelValidator:
         }
 
     @staticmethod
-    def _validate_checklist(submission, data):
+    def _validate_checklist(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """L7: Validate mock poll checklist order."""
         player_order = submission.get('order', [])
         correct_steps = data.get('steps', [])
@@ -188,7 +199,7 @@ class LevelValidator:
         if signatures and correct == total:
             pass  # Full credit
         elif correct == total:
-            correct -= 1  # Must have signatures
+            correct -= 1  # Penalty for missing signatures
 
         return {
             'correct': correct, 'total': total,
@@ -197,7 +208,7 @@ class LevelValidator:
         }
 
     @staticmethod
-    def _validate_security(submission, data):
+    def _validate_security(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """L8: Validate seal sequence and custody chain."""
         seal_order = submission.get('seal_order', [])
         correct_order = data.get('correct_seal_order', [])

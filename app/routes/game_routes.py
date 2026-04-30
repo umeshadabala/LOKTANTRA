@@ -1,5 +1,6 @@
 """Game Routes — Level endpoints and submission handling."""
-from flask import Blueprint, render_template, jsonify, request, current_app
+from typing import Any, Dict, Tuple, Union, Optional
+from flask import Blueprint, render_template, jsonify, request, current_app, Response
 from app.game_engine.levels import get_level, get_all_levels
 from app.game_engine.level_data import get_level_data
 from app.game_engine.validator import LevelValidator
@@ -9,15 +10,23 @@ game_bp = Blueprint('game', __name__)
 
 
 @game_bp.route('/')
-def game_shell():
+def game_shell() -> str:
     """Main game page."""
     levels = get_all_levels()
     return render_template('game.html', levels=levels)
 
 
 @game_bp.route('/level/<int:level_id>')
-def get_level_info(level_id):
-    """Get level metadata and data for rendering."""
+def get_level_info(level_id: int) -> Union[Response, Tuple[Response, int]]:
+    """
+    Get level metadata and data for rendering.
+
+    Args:
+        level_id: The ID of the level to retrieve.
+
+    Returns:
+        JSON response with level metadata and data.
+    """
     level_meta = get_level(level_id)
     if not level_meta:
         return jsonify({'error': 'Level not found'}), 404
@@ -37,17 +46,25 @@ def get_level_info(level_id):
 
 
 @game_bp.route('/level/<int:level_id>/submit', methods=['POST'])
-def submit_level(level_id):
-    """Submit answers for a level and receive score."""
+def submit_level(level_id: int) -> Union[Response, Tuple[Response, int]]:
+    """
+    Submit answers for a level and receive score.
+
+    Args:
+        level_id: The ID of the level being submitted.
+
+    Returns:
+        JSON response with validation results and score.
+    """
     level_data = get_level_data(level_id)
     if not level_data:
         return jsonify({'error': 'Level not found'}), 404
 
-    submission = request.get_json()
+    submission: Optional[Dict[str, Any]] = request.get_json()
     if not submission:
-        return jsonify({'error': 'No submission data'}), 400
+        return jsonify({'error': 'No submission data provided'}), 400
 
-    # Validate answers
+    # Validate answers using the engine
     validation = LevelValidator.validate(level_id, submission, level_data)
 
     # Calculate score
