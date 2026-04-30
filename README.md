@@ -11,6 +11,38 @@
 
 ---
 
+## Submission Requirements
+
+### 1. Chosen Vertical
+**Civic Education & EdTech**
+Loktantra addresses the critical need for civic literacy in the world's largest democracy. By gamifying the election process, it transforms dry constitutional text into engaging, interactive experiences that educate citizens about their rights, duties, and the robust mechanics of the Election Commission of India (ECI).
+
+### 2. Approach and Logic
+**Gamification grounded in Constitutional Reality:**
+The core logic of the application is to map specific ECI constitutional articles to interactive game mechanics. The application is divided into two sagas:
+*   **The Voter Saga:** Focuses on the citizen's experience (Articles 325, 326) - ensuring non-discrimination, understanding the Model Code of Conduct, and the physical act of voting (EVM/VVPAT).
+*   **The Officer Saga:** Focuses on the administrative side (Article 324) - managing logistics, ensuring multi-party trust through mock polls, and maintaining the chain of custody.
+
+**Technical Approach:**
+*   **Backend:** Python and Flask are used for a robust, modular API. A centralized `LevelValidator` strictly grades submissions, while a unified `ScoringEngine` calculates scores based on accuracy, time, and hint usage.
+*   **Frontend:** Vanilla JavaScript and Tailwind CSS are used to ensure lightning-fast load times and a highly responsive state machine without the overhead of heavy SPA frameworks.
+*   **Cloud-Native:** The architecture is designed for Google Cloud Run, utilizing Firestore for persistent leaderboards and Vertex AI (Gemini 1.5 Pro) for dynamic, context-aware educational feedback.
+
+### 3. How the Solution Works
+1.  **Level Selection:** Players start at the landing page and select a level from either the Voter or Officer saga.
+2.  **Gameplay:** Each level is a unique mini-game (e.g., a precision clicker for applying indelible ink, a logic puzzle for placing polling booths within 2km of villages, a sequence validator for EVM operations). The frontend manages the game state and timer.
+3.  **Validation & Scoring:** Upon completion, the frontend submits the raw user actions to the Flask backend. The `LevelValidator` grades the actions against reference data. The `ScoringEngine` computes a final score.
+4.  **AI Educational Feedback:** The backend queries Vertex AI to generate a dynamic explanation ("Why This Matters") that links the player's performance to specific Indian Constitutional Articles.
+5.  **Persistence:** Progress is saved locally via `localStorage` and globally via Firestore, culminating in a global civic leaderboard.
+
+### 4. Assumptions Made
+*   **Target Audience:** The primary audience is Indian citizens (or soon-to-be voters) who have a basic understanding of elections but lack detailed constitutional knowledge.
+*   **Accessibility:** Users have access to modern web browsers. The UI is designed to be accessible (WCAG 2.1 AA) and responsive across desktop and mobile devices.
+*   **Infrastructure Availability:** It is assumed that Google Cloud services (Firestore, Vertex AI) are generally available. However, robust in-memory and static fallbacks have been engineered into the system to ensure the game remains fully playable even if external APIs fail or are disabled in development.
+*   **Language:** The current iteration assumes English proficiency, though the architecture supports future localization.
+
+---
+
 ## Google Cloud APIs Used
 
 This project actively integrates the following **Google Cloud Platform** services:
