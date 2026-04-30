@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}LOKTANTRA: The Sovereign Saga — Election Simulator{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative pt-20 pb-16 sm:pt-32 sm:pb-24 overflow-hidden" aria-labelledby="hero-title">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <div class="animate-slide-up">
+            <h1 id="hero-title" class="font-display text-6xl sm:text-8xl font-black gradient-text tracking-tighter mb-6">LOKTANTRA</h1>
+            <p class="text-xl sm:text-2xl text-gray-400 font-medium max-w-3xl mx-auto mb-10">
+                Experience the world's largest democracy. A high-fidelity, interactive journey through the 
+                <span class="text-saffron-400">Voter Saga</span> and the <span class="text-lotus-400">Officer Saga</span>.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4" id="hero-actions">
+                <!-- Actions will be injected by JS based on registration status -->
+                <div class="animate-pulse h-12 w-48 bg-white/5 rounded-2xl"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Background Decoration -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-saffron-500/5 rounded-full blur-[120px] -z-10" aria-hidden="true"></div>
+</section>
+
+<!-- Registration Modal (Citizenship Registration) -->
+<div id="registration-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="reg-title">
+    <div class="modal-content max-w-md">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-saffron-500 to-lotus-500 flex items-center justify-center mx-auto mb-4">
+                <span class="text-2xl">🇮🇳</span>
+            </div>
+            <h2 id="reg-title" class="font-display text-2xl font-bold">Citizenship Registration</h2>
+            <p class="text-gray-500 text-sm mt-2">Register to start your saga and claim your place on the Global Leaderboard.</p>
+        </div>
+
+        <form id="hero-registration-form" class="space-y-4">
+            <div>
+                <label for="reg-name" class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">Full Name</label>
+                <input type="text" id="reg-name" required placeholder="Enter your full name" 
+                       class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:border-saffron-500 focus:ring-1 focus:ring-saffron-500/30 focus:outline-none transition-all">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="reg-age" class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">Age</label>
+                    <input type="number" id="reg-age" required min="18" max="120" placeholder="18+" 
+                           class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:border-saffron-500 focus:ring-1 focus:ring-saffron-500/30 focus:outline-none transition-all">
+                </div>
+                <div>
+                    <label for="reg-email" class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">Email</label>
+                    <input type="email" id="reg-email" required placeholder="Email address" 
+                           class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:border-saffron-500 focus:ring-1 focus:ring-saffron-500/30 focus:outline-none transition-all">
+                </div>
+            </div>
+            <div class="pt-4">
+                <button type="submit" class="btn-primary w-full py-4 rounded-2xl text-lg shadow-lg shadow-saffron-500/20">
+                    Register & Start Saga
+                </button>
+            </div>
+            <p class="text-[10px] text-gray-600 text-center mt-4">
+                By registering, you agree to uphold the democratic principles of LOKTANTRA. 
+                Your progress will be saved to Google Cloud.
+            </p>
+        </form>
+    </div>
+</div>
+
+<!-- Main Game Content (Hidden until registration) -->
+<div id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-24">
+    <!-- Party Showcase -->
+    <section id="parties" aria-labelledby="parties-title">
+        <div class="text-center mb-12">
+            <h2 id="parties-title" class="font-display text-3xl font-bold mb-4">The Contesting Parties</h2>
+            <p class="text-gray-500">Choose your ideology, but remember: the Constitution is the only absolute.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for party in parties %}
+            <div class="glass-card p-8 text-center group">
+                <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 text-3xl transition-transform group-hover:scale-110" aria-hidden="true">
+                    {{ party.icon }}
+                </div>
+                <h3 class="font-display font-bold text-xl mb-2">{{ party.name }}</h3>
+                <p class="text-xs text-saffron-400 font-semibold mb-4 uppercase tracking-widest">{{ party.slogan }}</p>
+                <p class="text-sm text-gray-500 leading-relaxed">{{ party.manifesto }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Game Sagas Grid -->
+    <section id="sagas" aria-labelledby="sagas-title">
+        <div class="text-center mb-12">
+            <h2 id="sagas-title" class="font-display text-3xl font-bold mb-4">The Dual Saga</h2>
+            <p class="text-gray-500">Master every role in the festival of democracy.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Voter Saga -->
+            <div class="space-y-6">
+                <div class="saga-header saga-voter">
+                    <h3 class="font-display text-2xl font-bold text-cyan-400">The Voter Saga</h3>
+                    <p class="text-gray-500">Empowering the citizen through awareness.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for id, level in levels.items() if level.saga == 'voter' %}
+                    <div class="glass-card p-6 border-l-4 border-cyan-500/30">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-cyan-400 uppercase">Lvl {{ level.id }}</span>
+                            <span class="text-lg">{{ level.icon }}</span>
+                        </div>
+                        <h4 class="font-display font-bold text-sm mb-1">{{ level.title }}</h4>
+                        <p class="text-xs text-gray-500">{{ level.subtitle }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Officer Saga -->
+            <div class="space-y-6">
+                <div class="saga-header saga-officer">
+                    <h3 class="font-display text-2xl font-bold text-amber-400">The Officer Saga</h3>
+                    <p class="text-gray-500">Ensuring the integrity of the process.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for id, level in levels.items() if level.saga == 'officer' %}
+                    <div class="glass-card p-6 border-l-4 border-amber-500/30">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-amber-400 uppercase">Lvl {{ level.id }}</span>
+                            <span class="text-lg">{{ level.icon }}</span>
+                        </div>
+                        <h4 class="font-display font-bold text-sm mb-1">{{ level.title }}</h4>
+                        <p class="text-xs text-gray-500">{{ level.subtitle }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const actionsContainer = document.getElementById('hero-actions');
+    const regModal = document.getElementById('registration-modal');
+    const mainContent = document.getElementById('main-content');
+    
+    // Check if user is registered
+    const citizen = JSON.parse(localStorage.getItem('loktantra_citizen'));
+    
+    if (citizen) {
+        actionsContainer.innerHTML = `
+            <a href="/game" class="btn-primary px-10 py-4 rounded-2xl text-lg inline-flex items-center gap-2">
+                Continue Your Saga
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+            <button onclick="localStorage.removeItem('loktantra_citizen'); window.location.reload();" class="btn-secondary px-8 py-4 rounded-2xl text-lg">
+                Switch Citizen
+            </button>
+        `;
+        mainContent.classList.remove('hidden');
+    } else {
+        actionsContainer.innerHTML = `
+            <button onclick="document.getElementById('registration-modal').classList.remove('hidden')" class="btn-primary px-10 py-4 rounded-2xl text-lg inline-flex items-center gap-2">
+                Begin Citizenship Registration
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 3m0 18a10.003 10.003 0 01-12-10 10.003 10.003 0 0110-10M12 3v18"/></svg>
+            </button>
+        `;
+    }
+    
+    // Handle registration
+    document.getElementById('hero-registration-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('reg-name').value.trim();
+        const age = parseInt(document.getElementById('reg-age').value);
+        const email = document.getElementById('reg-email').value.trim();
+        
+        if (name && age && email) {
+            const data = { name, age, email, registered_at: new Date().toISOString() };
+            localStorage.setItem('loktantra_citizen', JSON.stringify(data));
+            
+            // Auto-submit to leaderboard with 0 score to initialize presence
+            try {
+                await fetch('/leaderboard/submit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        player_name: name,
+                        age: age,
+                        email: email,
+                        total_score: 0,
+                        levels_completed: 0,
+                        saga_type: 'both'
+                    }),
+                });
+            } catch (err) { console.error('Initial registration failed:', err); }
+            
+            window.location.href = '/game';
+        }
+    });
+});
+</script>
+{% endblock %}
