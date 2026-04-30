@@ -5,11 +5,15 @@ import math
 from typing import Dict, Any
 
 
-class LevelValidator:
-    """Validates player answers for each level type with precision and strictness."""
+class LevelValidator:  # pylint: disable=too-few-public-methods
+    """Validates player answers for each level type."""
 
     @staticmethod
-    def validate(level_id: int, submission: Dict[str, Any], level_data: Dict[str, Any]) -> Dict[str, Any]:
+    def validate(
+        level_id: int,
+        submission: Dict[str, Any],
+        level_data: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """
         Validate a level submission against reference data.
 
@@ -125,7 +129,9 @@ class LevelValidator:
         }
 
     @staticmethod
-    def _validate_document_review(submission: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, Any]:
+    def _validate_document_review(
+        submission: Dict[str, Any], data: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """L5: Validate candidate affidavit decisions."""
         decisions = submission.get('decisions', {})
         candidates = data.get('candidates', [])

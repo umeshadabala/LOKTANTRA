@@ -7,48 +7,58 @@ class TestScoreCalculation:
     """Test per-level score calculation."""
 
     def test_perfect_score_fast(self):
-        result = ScoringEngine.calculate_level_score(1.0, 10, 0)
+        result = ScoringEngine.calculate_level_score(1.0, 10, hints_used=0)
         # 70 (accuracy) + 16 (time bonus) + 10 (completion) = 96
         assert result['score'] == 96
         assert result['stars'] == 3
 
     def test_perfect_accuracy_slow(self):
-        result = ScoringEngine.calculate_level_score(1.0, 120, 0)
+        result = ScoringEngine.calculate_level_score(1.0, 120, hints_used=0)
         assert result['base_accuracy'] == 70
         assert result['time_bonus'] == 0
         assert result['score'] == 80  # 70 + 0 + 10
 
     def test_half_accuracy(self):
-        result = ScoringEngine.calculate_level_score(0.5, 30, 0)
+        result = ScoringEngine.calculate_level_score(0.5, 30, hints_used=0)
         assert result['base_accuracy'] == 35
 
     def test_zero_accuracy(self):
-        result = ScoringEngine.calculate_level_score(0.0, 10, 0)
+        result = ScoringEngine.calculate_level_score(0.0, 10, hints_used=0)
         # 0 accuracy + time_bonus but no completion = time_bonus only
         assert result['completion_bonus'] == 0
         assert result['base_accuracy'] == 0
         assert result['stars'] == 0
 
     def test_hint_penalty(self):
-        no_hints = ScoringEngine.calculate_level_score(1.0, 30, 0)
-        one_hint = ScoringEngine.calculate_level_score(1.0, 30, 1)
+        no_hints = ScoringEngine.calculate_level_score(1.0, 30, hints_used=0)
+        one_hint = ScoringEngine.calculate_level_score(1.0, 30, hints_used=1)
         assert no_hints['score'] - one_hint['score'] == 10
 
     def test_max_hint_penalty_capped(self):
-        result = ScoringEngine.calculate_level_score(1.0, 10, 5)
+        result = ScoringEngine.calculate_level_score(1.0, 10, hints_used=5)
         assert result['hint_penalty'] == 30  # Capped at 30
 
     def test_score_never_negative(self):
-        result = ScoringEngine.calculate_level_score(0.1, 120, 3)
+        result = ScoringEngine.calculate_level_score(0.1, 120, hints_used=3)
         assert result['score'] >= 0
 
     def test_score_never_exceeds_max(self):
-        result = ScoringEngine.calculate_level_score(1.0, 0, 0)
+        result = ScoringEngine.calculate_level_score(1.0, 0, hints_used=0)
         assert result['score'] <= 100
 
     def test_time_bonus_at_boundary(self):
-        result = ScoringEngine.calculate_level_score(1.0, 60, 0)
+        result = ScoringEngine.calculate_level_score(1.0, 60, hints_used=0)
         assert result['time_bonus'] == 0  # Exactly at threshold
+
+    def test_negative_time_gives_max_bonus(self):
+        result = ScoringEngine.calculate_level_score(1.0, -5, hints_used=0)
+        assert result['time_bonus'] == 20
+
+    def test_keyword_only_max_time(self):
+        result = ScoringEngine.calculate_level_score(
+            1.0, 10, hints_used=0, max_time=180
+        )
+        assert result['score'] > 0
 
 
 class TestStarRating:

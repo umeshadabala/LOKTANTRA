@@ -28,7 +28,8 @@ PARTIES: Dict[str, Dict[str, str]] = {
         'icon': '\u2600',
         'color': '#EF4444',
         'slogan': 'A New Dawn for All',
-        'manifesto': ('Empowering the common citizen through radical transparency and social welfare. '
+        'manifesto': ('Empowering the common citizen through radical '
+                      'transparency and social welfare. '
                       'A new dawn of equality for every person.'),
     },
     'eternal_flame': {
@@ -81,7 +82,8 @@ LEVELS: Dict[int, Dict[str, Any]] = {
         'subtitle': 'The Booth',
         'saga': 'voter',
         'saga_label': 'The Voter Saga',
-        'description': ('Step into the voting booth and cast your vote using the EVM + VVPAT system. '
+        'description': ('Step into the voting booth and cast your vote '
+                        'using the EVM + VVPAT system. '
                         'Follow the 3-step process exactly.'),
         'objective': 'Complete the 3-step process: Press button, verify slip, confirm beep.',
         'insight_title': 'The Physical Audit Trail of Digital Votes',

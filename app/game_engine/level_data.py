@@ -1,7 +1,7 @@
 """
 Level Data — Questions, answers, and interactive content for all 8 levels.
 """
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 LEVEL_DATA: Dict[int, Dict[str, Any]] = {
     1: {
@@ -155,7 +155,8 @@ LEVEL_DATA: Dict[int, Dict[str, Any]] = {
         'start_time': '05:30',
         'deadline': '07:00',
         'steps': [
-            {'id': 's1', 'action': 'setup_evm', 'label': 'Set up EVM', 'order': 1, 'time_minutes': 15},
+            {'id': 's1', 'action': 'setup_evm', 'label': 'Set up EVM',
+             'order': 1, 'time_minutes': 15},
             {'id': 's2', 'action': 'invite_agents', 'label': 'Invite all party agents',
              'order': 2, 'time_minutes': 5},
             {'id': 's3', 'action': 'run_mock_votes', 'label': 'Cast 50 mock votes',

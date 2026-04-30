@@ -146,8 +146,8 @@ class VertexAIService:
 
         if app.config.get('ENABLE_VERTEX_AI'):
             try:
-                import vertexai
-                from vertexai.generative_models import GenerativeModel
+                import vertexai  # pylint: disable=import-outside-toplevel,import-error
+                from vertexai.generative_models import GenerativeModel  # pylint: disable=import-outside-toplevel,import-error
 
                 project_id = app.config.get('GCP_PROJECT_ID')
                 location = app.config.get('VERTEX_AI_LOCATION', 'us-central1')
@@ -218,7 +218,10 @@ class VertexAIService:
             8: "Explain WHY the seal-and-custody chain ensures the integrity of votes.",
         }
 
-        prompt = level_prompts.get(level_id, f"Explain the democratic principle behind Level {level_id}.")
+        prompt = level_prompts.get(
+            level_id,
+            f"Explain the democratic principle behind Level {level_id}."
+        )
 
         if context:
             prompt += f"\n\nPlayer context: {context}"
@@ -229,9 +232,13 @@ class VertexAIService:
         """Return a pre-written explanation for the given level."""
         return STATIC_EXPLANATIONS.get(level_id, {
             "title": "Democratic Principle",
-            "explanation": "Every aspect of India's electoral process is designed to uphold the constitutional mandate of free, fair, and accessible elections for all citizens.",
+            "explanation": (
+                "Every aspect of India's electoral process is designed "
+                "to uphold the constitutional mandate of free, fair, "
+                "and accessible elections for all citizens."
+            ),
             "article_reference": "Part XV — Articles 324-329",
-            "fun_fact": "India conducts the largest democratic election in the world!"
+            "fun_fact": "India conducts the largest democratic election!"
         })
 
     def _make_cache_key(self, level_id: int, context: Optional[str]) -> str:

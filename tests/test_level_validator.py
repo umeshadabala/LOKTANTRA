@@ -169,3 +169,50 @@ class TestInvalidLevel:
         result = LevelValidator.validate(1, None, {})  # type: ignore
         assert result['accuracy'] == 0.0
         assert result['details'] == 'Invalid data format'
+
+
+class TestLevel3Validator:
+    """Test EVM voting sequence validation."""
+
+    def test_correct_sequence(self):
+        data = get_level_data(3)
+        submission = {'sequence': data['correct_sequence']}
+        result = LevelValidator.validate(3, submission, data)
+        assert result['accuracy'] == 1.0
+
+    def test_partial_sequence(self):
+        data = get_level_data(3)
+        submission = {'sequence': data['correct_sequence'][:2]}
+        result = LevelValidator.validate(3, submission, data)
+        assert result['correct'] == 2
+
+    def test_wrong_sequence(self):
+        data = get_level_data(3)
+        submission = {'sequence': list(reversed(data['correct_sequence']))}
+        result = LevelValidator.validate(3, submission, data)
+        assert result['correct'] == 0
+
+
+class TestLevel7Validator:
+    """Test Mock Poll checklist validation."""
+
+    def test_perfect_checklist(self):
+        data = get_level_data(7)
+        correct_order = [s['action'] for s in sorted(data['steps'], key=lambda x: x['order'])]
+        submission = {'order': correct_order, 'signatures_collected': True}
+        result = LevelValidator.validate(7, submission, data)
+        assert result['accuracy'] == 1.0
+
+    def test_missing_signatures(self):
+        data = get_level_data(7)
+        correct_order = [s['action'] for s in sorted(data['steps'], key=lambda x: x['order'])]
+        submission = {'order': correct_order, 'signatures_collected': False}
+        result = LevelValidator.validate(7, submission, data)
+        assert result['correct'] == len(correct_order) - 1
+
+    def test_wrong_order(self):
+        data = get_level_data(7)
+        correct_order = [s['action'] for s in sorted(data['steps'], key=lambda x: x['order'])]
+        submission = {'order': list(reversed(correct_order)), 'signatures_collected': True}
+        result = LevelValidator.validate(7, submission, data)
+        assert result['correct'] == 0

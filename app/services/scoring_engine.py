@@ -20,7 +20,7 @@ class ScoringEngine:
                                time_seconds: int,
                                *,
                                hints_used: int = 0,
-                               max_time: int = 120) -> Dict[str, Any]:
+                               max_time: int = 120) -> Dict[str, Any]:  # pylint: disable=unused-argument
         """
         Calculate score for a single level.
 

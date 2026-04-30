@@ -32,6 +32,18 @@ const GameApp = (() => {
         phase: 'select', // select | playing | complete
     };
 
+    // Initialize progress from localStorage if it exists
+    try {
+        const savedProgress = localStorage.getItem(`loktantra_progress_${state.playerId}`);
+        if (savedProgress) {
+            const parsed = JSON.parse(savedProgress);
+            if (parsed.levelScores) state.levelScores = parsed.levelScores;
+            if (parsed.totalScore) state.totalScore = parsed.totalScore;
+        }
+    } catch (e) {
+        console.warn('Failed to load local progress', e);
+    }
+
     const levelHandlers = {};
 
     /** Register a level handler */
@@ -105,6 +117,17 @@ const GameApp = (() => {
             const result = await ApiClient.submitLevel(state.currentLevel, submission);
             state.levelScores[state.currentLevel] = result.score;
             state.totalScore = Object.values(state.levelScores).reduce((a, s) => a + s.score, 0);
+
+            // Save to localStorage
+            try {
+                localStorage.setItem(`loktantra_progress_${state.playerId}`, JSON.stringify({
+                    levelScores: state.levelScores,
+                    totalScore: state.totalScore,
+                    lastPlayed: new Date().toISOString()
+                }));
+            } catch (e) {
+                console.warn('Failed to save local progress', e);
+            }
 
             // Auto-submit to leaderboard
             await autoSubmitToLeaderboard();
@@ -203,6 +226,30 @@ const GameApp = (() => {
 
         // Auto-load ECI insight on completion
         loadCompletionInsight();
+    }
+
+    /** Update global UI elements based on current state */
+    function updateGlobalUI() {
+        document.getElementById('total-score').textContent = state.totalScore;
+        const completedCount = Object.keys(state.levelScores).length;
+        document.getElementById('levels-done').textContent = `${completedCount}/8`;
+        const pct = (completedCount / 8) * 100;
+        const fillEl = document.getElementById('progress-fill');
+        if (fillEl) fillEl.style.width = `${pct}%`;
+        const pctEl = document.getElementById('progress-pct');
+        if (pctEl) pctEl.textContent = `${Math.round(pct)}%`;
+        
+        // Update level cards
+        Object.entries(state.levelScores).forEach(([id, scoreObj]) => {
+            const cardStars = document.getElementById(`stars-${id}`);
+            if (cardStars && scoreObj.stars !== undefined) {
+                cardStars.querySelectorAll('.star').forEach((s, i) => {
+                    s.classList.toggle('earned', i < scoreObj.stars);
+                });
+            }
+            const badge = document.getElementById(`complete-badge-${id}`);
+            if (badge) badge.classList.remove('hidden');
+        });
     }
 
     /** Load ECI insight into the completion screen */
@@ -365,6 +412,9 @@ const GameApp = (() => {
     function getState() {
         return { ...state, levelScores: { ...state.levelScores } };
     }
+
+    // Initialize UI on load
+    document.addEventListener('DOMContentLoaded', updateGlobalUI);
 
     return {
         startLevel, submitLevel, backToSelect, nextLevel,

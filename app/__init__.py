@@ -3,7 +3,7 @@ LOKTANTRA: The Sovereign Saga
 Flask Application Factory
 """
 import os
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 from flask import Flask
 
 
@@ -12,7 +12,7 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     Create and configure the Flask application factory.
 
     Args:
-        config_name: The name of the configuration to use (development, production, testing).
+        config_name: Configuration name (development, production, testing).
 
     Returns:
         The configured Flask application instance.
@@ -22,9 +22,11 @@ def create_app(config_name: Optional[str] = None) -> Flask:
                 static_folder='static')
 
     # Load configuration
-    from app.config import config_by_name
+    from app.config import config_by_name  # pylint: disable=import-outside-toplevel
     env = config_name or os.getenv('FLASK_ENV', 'development')
-    app.config.from_object(config_by_name.get(env, config_by_name['development']))
+    app.config.from_object(
+        config_by_name.get(env, config_by_name['development'])
+    )
 
     # Initialize services
     _init_services(app)
@@ -53,6 +55,7 @@ def _init_services(app: Flask) -> None:
     Args:
         app: The Flask application instance.
     """
+    # pylint: disable=import-outside-toplevel
     from app.services.firestore_service import FirestoreService
     from app.services.vertex_ai_service import VertexAIService
     from app.services.logging_service import LoggingService
@@ -69,6 +72,7 @@ def _register_blueprints(app: Flask) -> None:
     Args:
         app: The Flask application instance.
     """
+    # pylint: disable=import-outside-toplevel
     from app.routes.main_routes import main_bp
     from app.routes.game_routes import game_bp
     from app.routes.leaderboard_routes import leaderboard_bp
@@ -87,18 +91,22 @@ def _register_error_handlers(app: Flask) -> None:
     Args:
         app: The Flask application instance.
     """
-    from flask import render_template, jsonify, request
+    from flask import render_template, jsonify, request  # pylint: disable=import-outside-toplevel
 
     @app.errorhandler(404)
-    def not_found(error: Any) -> Any:
+    def not_found(_error: Exception) -> tuple:
         if request.path.startswith('/api/'):
             return jsonify({'error': 'Resource not found'}), 404
-        return render_template('base.html', error_code=404,
-                               error_message='Page not found'), 404
+        return render_template(
+            'base.html', error_code=404,
+            error_message='Page not found'
+        ), 404
 
     @app.errorhandler(500)
-    def internal_error(error: Any) -> Any:
+    def internal_error(_error: Exception) -> tuple:
         if request.path.startswith('/api/'):
             return jsonify({'error': 'Internal server error'}), 500
-        return render_template('base.html', error_code=500,
-                               error_message='Internal server error'), 500
+        return render_template(
+            'base.html', error_code=500,
+            error_message='Internal server error'
+        ), 500

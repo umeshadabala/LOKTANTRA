@@ -13,7 +13,7 @@ def index() -> str:
     Returns:
         Rendered HTML template for the index page.
     """
-    from app.game_engine.levels import get_all_levels, PARTIES
+    from app.game_engine.levels import get_all_levels, PARTIES  # pylint: disable=import-outside-toplevel
     levels = get_all_levels()
     return render_template('index.html', levels=levels, parties=PARTIES)
 

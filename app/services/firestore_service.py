@@ -38,7 +38,7 @@ class FirestoreService:
 
         if app.config.get('ENABLE_FIRESTORE'):
             try:
-                from google.cloud import firestore
+                from google.cloud import firestore  # pylint: disable=import-outside-toplevel,import-error
                 project_id = app.config.get('GCP_PROJECT_ID')
                 self.client = firestore.Client(project=project_id)
                 self.enabled = True
@@ -94,14 +94,19 @@ class FirestoreService:
                 logger.error("Firestore save_score failed: %s", e)
 
         # In-memory fallback
-        existing_idx = next((i for i, e in enumerate(self._memory_leaderboard) if e.get('email') == email), -1)
+        existing_idx = next(
+            (i for i, e in enumerate(self._memory_leaderboard)
+             if e.get('email') == email), -1
+        )
         if existing_idx >= 0:
             self._memory_leaderboard[existing_idx] = entry
         else:
             self._memory_leaderboard.append(entry)
         return entry
 
-    def get_top_scores(self, limit: int = 50, saga_filter: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_top_scores(
+        self, limit: int = 50, saga_filter: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
         """
         Retrieve top scores, sorting by relevant saga score if filtered.
 
@@ -116,7 +121,9 @@ class FirestoreService:
             return self._get_scores_from_firestore(limit, saga_filter)
         return self._get_scores_from_memory(limit, saga_filter)
 
-    def _get_scores_from_firestore(self, limit: int, saga_filter: Optional[str]) -> List[Dict[str, Any]]:
+    def _get_scores_from_firestore(
+        self, limit: int, saga_filter: Optional[str],
+    ) -> List[Dict[str, Any]]:
         """Helper to fetch scores from Firestore."""
         sort_field = self._get_sort_field(saga_filter)
         try:
@@ -133,7 +140,9 @@ class FirestoreService:
             logger.error("Firestore get_top_scores failed: %s", e)
             return []
 
-    def _get_scores_from_memory(self, limit: int, saga_filter: Optional[str]) -> List[Dict[str, Any]]:
+    def _get_scores_from_memory(
+        self, limit: int, saga_filter: Optional[str],
+    ) -> List[Dict[str, Any]]:
         """Helper to fetch scores from in-memory storage."""
         sort_field = self._get_sort_field(saga_filter)
         entries = self._memory_leaderboard

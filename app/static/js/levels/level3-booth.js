@@ -68,7 +68,7 @@ GameApp.registerLevel(3, (() => {
         const parties = { blue_lotus: { name: 'Blue Lotus', icon: '\u2727', color: '#3B82F6' }, golden_gear: { name: 'Golden Gear', icon: '\u2699', color: '#F59E0B' }, rising_sun: { name: 'Rising Sun', icon: '\u2600', color: '#EF4444' }, eternal_flame: { name: 'Eternal Flame', icon: '\u2B50', color: '#8B5CF6' } };
         el.innerHTML = data.candidates.map(c => {
             const p = parties[c.party] || {};
-            return `<div class="flex items-center justify-between p-3 rounded-lg bg-white/3 border border-white/5">
+            return `<div class="flex items-center justify-between p-3 rounded-lg bg-white/3 border border-white/5 transition-all duration-300" id="candidate-btn-${c.position}">
                 <div class="flex items-center gap-3">
                     <span class="text-xl" aria-hidden="true">${p.icon || ''}</span>
                     <div>
@@ -108,6 +108,16 @@ GameApp.registerLevel(3, (() => {
         selectedCandidate = { position, name, party };
         sequence.push('press_button');
 
+        // Visual feedback
+        document.querySelectorAll('.evm-button').forEach(btn => btn.disabled = true);
+        const card = document.getElementById(`candidate-btn-${position}`);
+        if (card) {
+            card.classList.remove('bg-white/3', 'border-white/5');
+            card.classList.add('bg-saffron-500/20', 'border-saffron-500/50', 'ring-2', 'ring-saffron-500/50');
+            // Flash red light near button
+            card.querySelector('.evm-button').style.backgroundColor = '#EF4444';
+        }
+
         // Show VVPAT
         currentStep = 3; // verify_vvpat
         sequence.push('verify_vvpat');
@@ -134,7 +144,10 @@ GameApp.registerLevel(3, (() => {
     };
 
     function getSubmission() {
-        return { sequence: data.correct_sequence }; // Simplified: if they completed the flow, give credit
+        return { 
+            sequence: sequence,
+            voted_for: selectedCandidate ? selectedCandidate.name : null
+        };
     }
 
     function showHint(n) {
