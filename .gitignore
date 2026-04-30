@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Google Cloud
+.gcloud/
+google-cloud-sdk/
+install.sh
+*.log
+
+# VS Code / IDEs
+.vscode/
+.idea/
+
+# Local data
+instance/
+*.db

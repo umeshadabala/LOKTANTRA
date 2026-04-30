@@ -9,6 +9,7 @@ PARTIES = {
         'icon': '\u2727',
         'color': '#3B82F6',
         'slogan': 'Wisdom Through Unity',
+        'manifesto': 'Committed to social harmony and traditional wisdom. We believe in building a future where unity is our greatest strength.',
     },
     'golden_gear': {
         'name': 'The Golden Gear Party',
@@ -16,6 +17,7 @@ PARTIES = {
         'icon': '\u2699',
         'color': '#F59E0B',
         'slogan': 'Progress Through Industry',
+        'manifesto': 'Driving economic growth through technological innovation and industrial excellence. Efficiency is our core ideology.',
     },
     'rising_sun': {
         'name': 'The Rising Sun Party',
@@ -23,6 +25,7 @@ PARTIES = {
         'icon': '\u2600',
         'color': '#EF4444',
         'slogan': 'A New Dawn for All',
+        'manifesto': 'Empowering the common citizen through radical transparency and social welfare. A new dawn of equality for every person.',
     },
     'eternal_flame': {
         'name': 'The Eternal Flame Party',
@@ -30,6 +33,7 @@ PARTIES = {
         'icon': '\u2B50',
         'color': '#8B5CF6',
         'slogan': 'Light That Never Fades',
+        'manifesto': 'Protecting the sovereignty and environmental heritage of the nation. A flame that guards our future generations.',
     },
 }
 

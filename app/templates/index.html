@@ -74,7 +74,7 @@
             <p class="text-gray-500">Choose your ideology, but remember: the Constitution is the only absolute.</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {% for party in parties %}
+            {% for party in parties.values() %}
             <div class="glass-card p-8 text-center group">
                 <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 text-3xl transition-transform group-hover:scale-110" aria-hidden="true">
                     {{ party.icon }}
